@@ -12,6 +12,18 @@ balancer can proxy to the gateway; multiple gateway replicas are supported.
 ./mvnw spring-boot:run
 ```
 
+## Environment variables
+
+Use the root platform `.env` for local URLs and credentials. Configure the
+same names as repository secrets for Actions, and use ConfigMap values plus
+`platform-secrets` for Kubernetes.
+
+| Variable | Purpose |
+| --- | --- |
+| `JWT_SECRET` | Shared JWT HMAC secret |
+| `AUTH_URL`, `ACCOUNT_URL`, `ORDER_URL` | Platform service URLs |
+| `PRODUCT_URL`, `EXCHANGE_URL` | External service URLs |
+
 ## GitHub Actions secrets
 
 Add these under **Settings → Secrets and variables → Actions** in
