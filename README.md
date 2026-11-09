@@ -1,5 +1,12 @@
 # Gateway
 
+[![Java](https://img.shields.io/badge/Java-ED8B00?style=flat)](https://dev.java/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Maven](https://img.shields.io/badge/Maven-C71A36?style=flat&logo=apachemaven&logoColor=white)](https://maven.apache.org/)
+[![Spring Cloud](https://img.shields.io/badge/Spring_Cloud-6DB33F?style=flat&logo=spring&logoColor=white)](https://spring.io/projects/spring-cloud-gateway)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
+[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat&logo=githubactions&logoColor=white)](https://github.com/features/actions)
+
 Spring Cloud Gateway MVC public entry point. It validates JWTs and routes
 Auth, Account, Order, Product, and Exchange requests. Nginx or a cloud load
 balancer can proxy to the gateway; multiple gateway replicas are supported.
