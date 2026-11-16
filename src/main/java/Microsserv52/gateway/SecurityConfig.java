@@ -37,7 +37,7 @@ public class SecurityConfig {
                 (CookieBearerTokenFilter.cookieToken(request) != null || request.getRequestURI().equals("/session/login"))))
             .addFilterBefore(new CookieBearerTokenFilter(), BearerTokenAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/actuator/health", "/auth/login", "/session/csrf", "/session/login").permitAll()
+                .requestMatchers("/actuator/health", "/auth/login", "/session/csrf", "/session/login", "/error").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/session").permitAll()
                 .requestMatchers("/accounts/internal/**").denyAll()
                 .requestMatchers(HttpMethod.POST, "/accounts").permitAll()

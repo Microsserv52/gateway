@@ -17,14 +17,12 @@ import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.security.web.csrf.CsrfToken;
 import com.sun.net.httpserver.HttpServer;
 
 @SpringBootTest(properties = "platform.jwt-secret=test-secret-with-at-least-32-characters")
-@Import(BrowserSecurityTests.Probe.class)
 class BrowserSecurityTests {
     private static final String SECRET = "test-secret-with-at-least-32-characters";
     @Autowired WebApplicationContext context;
@@ -34,6 +32,12 @@ class BrowserSecurityTests {
     static HttpServer upstream() {
         try {
             var server = HttpServer.create(new java.net.InetSocketAddress("127.0.0.1", 0), 0);
+            server.createContext("/products", exchange -> {
+                byte[] body = "{\"catalog\":true}".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                exchange.getResponseHeaders().set("Content-Type", "application/json");
+                exchange.sendResponseHeaders(200, body.length);
+                exchange.getResponseBody().write(body); exchange.close();
+            });
             server.createContext("/auth/login", exchange -> {
                 byte[] body = ("{\"accessToken\":\"" + token("ROLE_USER") + "\",\"tokenType\":\"Bearer\",\"expiresIn\":60}").getBytes(java.nio.charset.StandardCharsets.UTF_8);
                 exchange.getResponseHeaders().set("Content-Type", "application/json");
@@ -52,6 +56,7 @@ class BrowserSecurityTests {
     @DynamicPropertySource static void urls(DynamicPropertyRegistry properties) {
         properties.add("AUTH_URL", () -> "http://127.0.0.1:" + upstream.getAddress().getPort());
         properties.add("ACCOUNT_URL", () -> "http://127.0.0.1:" + upstream.getAddress().getPort());
+        properties.add("PRODUCT_URL", () -> "http://127.0.0.1:" + upstream.getAddress().getPort());
     }
 
     @BeforeEach void setup() { mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build(); }
@@ -63,6 +68,10 @@ class BrowserSecurityTests {
                 .issuedAt(Instant.now()).expiresAt(Instant.now().plusSeconds(60)).claim("roles", List.of(role)).build())).getTokenValue();
     }
 
+    @Test void routedRequestsReachUpstreamServices() throws Exception {
+        mvc.perform(get("/auth/login")).andExpect(status().isOk());
+        mvc.perform(get("/accounts/me").header("Authorization", "Bearer " + token("ROLE_USER"))).andExpect(status().isOk());
+    }
     @Test void publicCatalogDoesNotRequireCredentials() throws Exception {
         mvc.perform(get("/products")).andExpect(status().isOk());
     }
@@ -108,9 +117,5 @@ class BrowserSecurityTests {
         org.junit.jupiter.api.Assertions.assertTrue(session.isHttpOnly());
         mvc.perform(get("/session").cookie(session)).andExpect(status().isOk())
             .andExpect(content().string(org.hamcrest.Matchers.containsString("fixture@example.test")));
-    }
-    @RestController static class Probe {
-        @GetMapping("/products") String catalog() { return "catalog"; }
-        @PostMapping("/products") String create() { return "created"; }
     }
 }
