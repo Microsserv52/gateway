@@ -1,5 +1,7 @@
 # Gateway
 
+![Tech Stack](https://skillicons.dev/icons?i=java,spring,postgres,docker,kubernetes,grafana,prometheus)
+
 **Application stack**
 
 [![Java](https://img.shields.io/badge/Java-ED8B00?style=flat)](https://dev.java/)
